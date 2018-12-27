@@ -3,7 +3,7 @@ from base64 import b64encode, b64decode
 from http import cookiejar
 from random import random
 from lxml import etree
-import json
+
 
 LOGIN_URL = 'http://ecard.scuec.edu.cn/loginstudent.action'
 CAPTCHAURL = "http://ecard.scuec.edu.cn/homeLogin.action/getCheckpic.action?rand=" + str(random() * 10000)
@@ -20,7 +20,6 @@ def save_img(o):
 
 
 class LoginSimulator:
-    cookie = cookiejar.CookieJar()
 
     def __init__(self, LoginUrl, CaptchaUrl):
         """
@@ -31,6 +30,7 @@ class LoginSimulator:
         self.LoginUrl = LoginUrl
         self.CaptchaUrl = CaptchaUrl
         # 托管整个生命周期cookie
+        self.cookie = cookiejar.CookieJar()
         self.opener = request.build_opener(request.HTTPCookieProcessor(self.cookie))
 
     def get_captcha(self):
@@ -78,8 +78,3 @@ class LoginSimulator:
                 return 2
             elif content_text == '登陆失败，无此用户名称！':
                 return 3
-
-    def get_cookie(self):
-        json_str = json.dumps(LoginSimulator.cookie)
-        return json_str
-        # return LoginSimulator.cookie

@@ -5,12 +5,14 @@ from bs4 import BeautifulSoup as bs
 
 
 class NianDu:
-
     @staticmethod
     def login(username, password):
         session = requests.Session()
         start_url = "http://id.scuec.edu.cn/authserver/login?service=http%3A%2F%2F\
         ehall.scuec.edu.cn%2Flogin%3Fservice%3Dhttp%3A%2F%2Fehall.scuec.edu.cn%2Fnew%2Findex.html"
+        jwUrl1 = "http://id.scuec.edu.cn/authserver/login?\
+        service=http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check"
+        jwxtUrl = "http://ssfw.scuec.edu.cn/ssfw/index.do"
         headers = dict(
             headers1={
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -38,6 +40,28 @@ class NianDu:
                 'Referer': start_url,
                 'Upgrade-Insecure-Requests': '1',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
+            },
+            jw1={
+                'Host': 'id.scuec.edu.cn',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
+                        AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Language': 'zh-CN,zh;q=0.9',
+            },
+            jw2={
+                'Host': 'ssfw.scuec.edu.cn',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
+                        AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Language': 'zh-CN,zh;q=0.9',
             }
         )
         try:
@@ -69,119 +93,101 @@ class NianDu:
         }
 
         try:
-            post_resp = session.post(postUrl, postData, headers['headers2'], allow_redirects=False)
+            session.post(postUrl, postData, headers['headers2'], allow_redirects=False)
         except Exception as e:
             print(e)
         sleep(5)
-        return session
-
-    @staticmethod
-    def jw(session):
-        headers = dict(
-            jw1={
-                'Host': 'id.scuec.edu.cn',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
-                AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-            },
-            jw2={
-                'Host': 'ssfw.scuec.edu.cn',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
-                AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-            }
-        )
-        jwUrl1 = "http://id.scuec.edu.cn/authserver/login?\
-        service=http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check"
-        jwxtUrl = "http://ssfw.scuec.edu.cn/ssfw/index.do"
-
-        # 获取cookie
+        if not session:
+            return False
         jw_res1 = session.get(jwUrl1, headers=headers['jw1'], allow_redirects=False)
         jwUrl2 = jw_res1.headers['Location']
         jw_res2 = session.get(jwUrl2, headers=headers['jw2'], allow_redirects=False)
         headers['jw2']['Cookie'] = jw_res2.headers['Set-Cookie']
-        rrrr = session.get("http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check", headers=headers['jw2'],
-                           allow_redirects=False)
+        session.get("http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check",
+                    headers=headers['jw2'], allow_redirects=False)
         headers['jw2']['Cookie'] = jw_res2.headers['Set-Cookie']
-        jwRes = session.get(jwxtUrl, headers=headers['jw2'])
+        session.get(jwxtUrl, headers=headers['jw2'])
         return session
 
     @staticmethod
-    def number(session):
+    def process_number(session):
         jw3 = {
-            'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
             'Cache-Control': 'no-cache',
             'Host': 'ssfw.scuec.edu.cn',
             'Proxy-Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                    AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Referer': 'http://ssfw.scuec.edu.cn/ssfw/xkgl/xkjgcx.do',
+            'Referer': 'http://ssfw.scuec.edu.cn/ssfw/index.do',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
         xinxi = "http://ssfw.scuec.edu.cn/ssfw/xjgl/jbxx.do"
         try:
             xRes = session.get(xinxi, headers=jw3)
-            # print(xRes.text)
         except Exception as e:
-            print(e)
-        return xRes.text
+            return e
+        soup = bs(xRes.text, 'html.parser')
+        name = soup.find('input', {'id': 'xm'})['value']
+        number = soup.find('input', {'id': 'zjh'})['value']
+        yxdm = soup.find('input', id='yxdm')['value']
+        password = number[11:17]
+
+        url = "http://ssfw.scuec.edu.cn/ssfw/selectrange.widgets"
+        headers = {
+            'Accept': 'application / json, text / javascript, * / *; q = 0.01',
+            'Accept - Encoding': 'gzip, deflate',
+            'Accept - Language': 'zh - CN, zh;q = 0.9',
+            'Cache - Control': 'no - cache',
+            'Connection': 'keep - alive',
+            'Content - Length': '526',
+            'Content - Type': 'application / x - www - form - urlencoded;charset = UTF - 8',
+            'Host': 'ssfw.scuec.edu.cn',
+            'Origin': 'http: // ssfw.scuec.edu.cn',
+            'Pragma': 'no - cache',
+            'Referer': 'http: // ssfw.scuec.edu.cn / ssfw / xjgl / jbxx.do',
+            'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;Win64;x64) \
+                    AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 70.0.3538.67Safari / 537.36',
+            'X - Requested - With': 'XMLHttpRequest'
+        }
+
+        postData = {
+            'baseTypes': 'dwdm',
+            'values': yxdm,
+            'keys': '7',
+        }
+
+        try:
+            res_xueyuan = session.post(url, headers=headers, data=postData)
+            str_res = res_xueyuan.text[1:-1]
+            xueyuan = eval(str_res)['label']
+        except Exception as e:
+            return e
+        return name, password, xueyuan
 
     @staticmethod
-    def kebiao(session):
+    def process_kebiao(session, username):
         kbUrl = "http://ssfw.scuec.edu.cn/ssfw/pkgl/kcbxx/4/2018-2019-1.do?flag=4&xnxqdm=2018-2019-1"
         jw3 = {
-            'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
             'Cache-Control': 'no-cache',
             'Host': 'ssfw.scuec.edu.cn',
             'Proxy-Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                    AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Referer': 'http://ssfw.scuec.edu.cn/ssfw/xkgl/xkjgcx.do',
+            'Referer': 'http://ssfw.scuec.edu.cn/ssfw/index.do',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
         try:
             kRes = session.get(kbUrl, headers=jw3)
-            # print(kRes.text)
         except Exception as e:
-            print(e)
-        return kRes.text
-
-    @staticmethod
-    def process_number(xRes):
-        soup = bs(xRes, 'html.parser')
-        name = soup.find('input', {'id': 'xm'})['value']
-        number = soup.find('input', {'id': 'zjh'})['value']
-        # wel=soup.find('div',{'class':'welMessage'})
-        yxdm = soup.find('input', id='yxdm')['value']
-
-        password = number[11:17]
-        # local = re.findall("【(.*)】", str(wel))
-        # xueyuanLocal=[str(i) for i in local]
-        # xueyuan="".join(xueyuanLocal)
-        return name, password, yxdm
-
-    @staticmethod
-    def process_kebiao(kRes, username):
+            return e
         year = username[0:4]
         term = (2018 - int(year)) * 2 + 1
-        # print(term)
-        soup = bs(kRes, 'html.parser')
+        soup = bs(kRes.text, 'html.parser')
         # 课程，周数，节数
         step1 = []
         # 课程
@@ -192,7 +198,7 @@ class NianDu:
         for child in kebiao2:
             kebiao1.append(child)
         for child in kebiao3:
-            kebiao1.append((child))
+            kebiao1.append(child)
         # print(kebiao1)
 
         # 考虑老师在教务系统修改课的情况
@@ -221,9 +227,7 @@ class NianDu:
             num = re.findall('\d+', str(i))
 
             course = re.findall(r"</div>\xa0(.*)]", str(i))
-            # print(course)
             nums = re.findall('\d+', str(course))
-            # print(len(nums))
             if len(nums) == 1:
                 num1 = int(num[1])
                 num2 = int(num[2])
@@ -254,14 +258,11 @@ class NianDu:
                 classCount = weekCount2 * (num4 - num3 + 1)
             else:
                 classCount = (num2 - num1 + 1) * (num4 - num3 + 1)
-            # print(classCount)
             if not str(course) in dic:
                 dic[str(course)] = classCount
             else:
                 dic[str(course)] = dic[str(course)] + classCount
-        # print(dic)
         courseCount = len(dic)
-        # print(courseCount)
         classCount = 0
         max_value = 0
         for name, value in dic.items():
@@ -269,46 +270,8 @@ class NianDu:
                 max_value = value
                 courseName = name
             classCount += value
-        # print(classCount)
         classDay = round(classCount * 3 / 4 / 24)
-        # print(classDay)
-        # print(max_value)
         list1 = courseName
         list2 = list1[2:len(list1) - 2]
         list3 = list2 + "]"
-        # print(term,courseCount,classCount,classDay,list3)
         return term, courseCount, classCount, classDay, list3
-
-    @staticmethod
-    def xueyuan(session, yxdm):
-        url = "http://ssfw.scuec.edu.cn/ssfw/selectrange.widgets"
-        headers = {
-            'Accept': 'application / json, text / javascript, * / *; q = 0.01',
-            'Accept - Encoding': 'gzip, deflate',
-            'Accept - Language': 'zh - CN, zh;q = 0.9',
-            'Cache - Control': 'no - cache',
-            'Connection': 'keep - alive',
-            'Content - Length': '526',
-            'Content - Type': 'application / x - www - form - urlencoded;charset = UTF - 8',
-            'Host': 'ssfw.scuec.edu.cn',
-            'Origin': 'http: // ssfw.scuec.edu.cn',
-            'Pragma': 'no - cache',
-            'Referer': 'http: // ssfw.scuec.edu.cn / ssfw / xjgl / jbxx.do',
-            'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;Win64;x64) \
-            AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 70.0.3538.67Safari / 537.36',
-            'X - Requested - With': 'XMLHttpRequest'
-        }
-
-        postData = {
-            'baseTypes': 'dwdm',
-            'values': yxdm,
-            'keys': '7',
-        }
-
-        try:
-            res_xueyuan = session.post(url, headers=headers, data=postData)
-            str_res = res_xueyuan.text[1:-1]
-            xueyuan = eval(str_res)['label']
-        except Exception:
-            return False
-        return xueyuan

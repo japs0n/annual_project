@@ -33,6 +33,7 @@ POST
 | :---- | :------- | :----------------- |
 | error | string   | 错误信息           |
 | pic   | string   | Base64编码的验证码 |
+| xueyuan
 
 ### 返回error信息说明
 

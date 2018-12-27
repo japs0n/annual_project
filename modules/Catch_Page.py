@@ -59,7 +59,7 @@ class Crawler(LoginSimulator):
             }
         )
         self.urls = dict(
-            accoun_type_url='http://ecard.scuec.edu.cn/accounthisTrjn.action',
+            account_type_url='http://ecard.scuec.edu.cn/accounthisTrjn.action',
             posturl="http://ecard.scuec.edu.cn/accounthisTrjn{}.action",
             nextpage="http://ecard.scuec.edu.cn/accountconsubBrows.action",
         )
@@ -67,7 +67,7 @@ class Crawler(LoginSimulator):
         self.postdata = dict(
             data1={
                 'account': '20167',
-                'inputStartDate': 'all',
+                'inputObject': 'all',
                 'Submit': '+%C8%B7+%B6%A8+'},
             data2={
                 'inputEndDate': '20180903',
@@ -90,11 +90,11 @@ class Crawler(LoginSimulator):
         if len(result) < 1:
             return False
         else:
-            self.postdata['data1']['account'] = result[0]['value']
+            self.postdata['data1']['account'] = result[0].text[:5]
             self.get_account_type = True
             return True
 
-    def get_information(self):
+    def get_bill(self):
         postdata = parse.urlencode(self.postdata['data1']).encode()
         first_req = request.Request(self.urls['posturl'].format('1'), postdata, self.headers['post1'])
         postdata = parse.urlencode(self.postdata['data2']).encode()
