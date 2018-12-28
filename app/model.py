@@ -6,6 +6,7 @@ class College(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='colleges')
+    times = db.Column(db.BigInteger)
 
 
 class User(db.Model):

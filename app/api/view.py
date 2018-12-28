@@ -73,10 +73,10 @@ def ehall_login():
     return jsonify(error=0, pic=pic)
 
 
-@api.route("/ecardlogin", methods=["POST"])
+@api.route("/ecardLogin", methods=["POST"])
 def ecard_login():
     check = session.get('check', '')
-    if check is None or check == '':
+    if (check is None)or check == '':
         return jsonify(error='4')
     else:
         req_msg = request.json
@@ -88,7 +88,7 @@ def ecard_login():
         o = Crawler()
         o.cookie = requests.utils.cookiejar_from_dict(session['cookie'])
         login_status = o.login(code, number, password)
-        user_obj = User.query.filter(User.Sno == session['number']).first()
+        user_obj = User.query.filter(User.Sno == number).first()
         session['has'] = True if user_obj else False
         session['auth'] = True if login_status == 0 else False
         return jsonify(error=login_status)
@@ -116,12 +116,13 @@ def get_information():
         term, courseCount, classCount, classDay, list3 = kebiao_tuple
     o = Crawler()
     o.cookie = requests.utils.cookiejar_from_dict(session['cookie'])
-    if not o.get_account():
-        return jsonify(error=2)
-    college_obj = College.query.filter(College.name == session['college'])
+    account_check = o.get_account()
+    if account_check is not True:
+        return jsonify(error=account_check)
+    college_obj = College.query.filter(College.name == session['college']).first()
     if college_obj is None:
         return jsonify(error=3)
-    ranking = len(college_obj.users.all()) + 1
+    ranking = college_obj.times + 1
     bill = o.get_bill()
     if not bill:
         return jsonify(error=4)
@@ -133,21 +134,30 @@ def get_information():
         "times": c.times,
         "bf_times": c.bf_times,
         "bus_times": c.bus_times,
-        "sum_price": c.sum_price,
+        "sum_price": float(c.sum_price.copy_abs()),
         "hosp_times": c.hosp_times,
         "top_price_place": c.top_record[4].rstrip(),
         "most_visit_place": most_visit_place,
         "most_visit_times": most_visit_times,
-        "top_price": c.sum_price,
+        "top_price": float(c.top_price.copy_abs()),
         "overdue_times": c.overdue_times,
-        "overdue_price": c.overdue_price,
+        "overdue_price": float(c.overdue_price.copy_abs()),
         "courseCount": courseCount,
         "classCount": classCount,
         "classDay": classDay,
         "most_class": list3,
-        "term": term
+        "term": term,
+        "college": session['college'],
     }
     user_obj = User(belong_college=college_obj.id, Sno=session['number'], data=info)
+    college_obj.times = ranking
+    db.session.add(college_obj)
     db.session.add(user_obj)
     db.session.commit()
     return jsonify(info)
+
+
+@api.route("/test/get_cookie")
+def get_cookie():
+    return jsonify(session=session['cookie'], number=session['number'],
+                   password=session['password'], college=session['college'])

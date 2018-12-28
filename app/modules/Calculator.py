@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+from decimal import Decimal
 
 
 class Calculator:
@@ -10,17 +11,17 @@ class Calculator:
         self.bus_times = 0
         self.bf_times = 0
         self.hosp_times = 0
-        self.sum_price = float()
-        self.overdue_price = 0
+        self.sum_price = Decimal()
+        self.overdue_price = Decimal()
         self.overdue_times = 0
         self.type_list = dict()
-        self.top_price = float(self.top_record[5])
+        self.top_price = Decimal(self.top_record[5])
         for record in bill:
             if record[4] is None:
                 continue
             hour = int(record[0][11:13])
             record_type = record[4].rstrip()
-            price = float(record[5])
+            price = Decimal(record[5])
             if price < self.top_price:
                 self.top_record = record
             if hour in range(5, 9):
@@ -42,9 +43,10 @@ class Calculator:
     def get_most_visit(self):
         high_visit = 0
         place = None
-        for k, v in self.type_list:
+        for k, v in self.type_list.items():
             if v >= high_visit:
                 place = k
+                high_visit = v
         return place, high_visit
 
     def get_type_count(self):

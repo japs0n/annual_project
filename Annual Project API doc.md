@@ -134,6 +134,7 @@ GET
 | bf_times | int      | 早点天数                   |
 | trem | int      | 第几个学期                 |
 |ranking|int|本学院打卡排名|
+|college|string|学院|
 
 ### 返回error信息说明
 

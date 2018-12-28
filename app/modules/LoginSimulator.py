@@ -69,16 +69,19 @@ class LoginSimulator:
 
         tree = etree.HTML(self.res)
         result = tree.xpath('//p[@class="biaotou"]')
-        if len(result) < 1:
+        title = tree.xpath('//title')
+        if len(result) < 1 and title[0].text == 'YKTCX':
             return 0
         else:
             content_text = result[0].text
-            if content_text == '登陆失败，密码错误':
+            if content_text == '登陆失败，密码错误！':
                 return 1
             elif content_text == '验证码错误，登陆失败':
                 return 2
             elif content_text == '登陆失败，无此用户名称！':
                 return 3
+            else:
+                return 4
 
     def get_cookie(self):
         return dict_from_cookiejar(self.cookie)

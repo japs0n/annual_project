@@ -83,12 +83,12 @@ class Crawler(LoginSimulator):
             account_res = requests.get(url=self.urls['account_type_url'], headers=self.headers['get'],
                                        cookies=self.cookie)
         except requests.exceptions.RequestException:
-            return False
+            return 1
         account_res = account_res.content.decode('gb2312')
         tree = etree.HTML(account_res)
         result = tree.xpath('//select[@id="account"]/option/@value')
         if len(result) < 1:
-            return False
+            return 2
         else:
             self.postdata['data1']['account'] = result[0]
             return True
