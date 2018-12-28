@@ -1,8 +1,11 @@
-# import os
-# db_url = os.environ['DB_URL']
-# db_user = os.environ['DB_USER']
-# db_password = os.environ['DB_PASSWORD']
-# db_dbname = os.environ['DB_DBNAME']
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+import os
+db_url = os.environ.get('DB_URL', '')
+db_user = os.environ.get('DB_USER', '')
+db_password = os.environ.get('DB_PASSWORD', '')
+db_dbname = os.environ.get('DB_DBNAME', '')
 
 
 class CommonConfig(object):
@@ -11,7 +14,7 @@ class CommonConfig(object):
 
 class ProdConfig(CommonConfig):
     """生产环境设置"""
-    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://' + db_user + ':' + db_password + '@' + db_url + '/' + db_dbname
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://' + db_user + ':' + db_password + '@' + db_url + '/' + db_dbname
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
 

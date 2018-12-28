@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 from .LoginSimulator import LoginSimulator
 from urllib import parse
 import requests
@@ -6,7 +9,6 @@ import re
 
 
 class Crawler(LoginSimulator):
-
     def __init__(self):
         super().__init__()
         self.headers = dict(
@@ -61,15 +63,14 @@ class Crawler(LoginSimulator):
             posturl="http://ecard.scuec.edu.cn/accounthisTrjn{}.action",
             nextpage="http://ecard.scuec.edu.cn/accountconsubBrows.action",
         )
-        self.get_account_type = False
         self.postdata = dict(
             data1={
-                'account': '20167',
+                'account': '',
                 'inputObject': 'all',
                 'Submit': '+%C8%B7+%B6%A8+'},
             data2={
                 'inputStartDate': '20180903',
-                'inputEndDate': '20181227'
+                'inputEndDate': '20181229'
 
             })
 
@@ -82,7 +83,7 @@ class Crawler(LoginSimulator):
             account_res = requests.get(url=self.urls['account_type_url'], headers=self.headers['get'],
                                        cookies=self.cookie)
         except requests.exceptions.RequestException:
-            return {'error': 1}
+            return False
         account_res = account_res.content.decode('gb2312')
         tree = etree.HTML(account_res)
         result = tree.xpath('//select[@id="account"]/option/@value')
@@ -90,7 +91,6 @@ class Crawler(LoginSimulator):
             return False
         else:
             self.postdata['data1']['account'] = result[0]
-            self.get_account_type = True
             return True
 
     def get_bill(self):
@@ -104,7 +104,7 @@ class Crawler(LoginSimulator):
             result = requests.post(self.urls['posturl'].format('3'),
                                    headers=self.headers['post3'], cookies=self.cookie)
         except requests.exceptions.RequestException:
-            return {'error': 1}
+            return False
         # 去掉网页中的注释
         re_comment = re.compile('<!--.*-->')
         result_content = re_comment.sub('', result.content.decode('gb2312'))

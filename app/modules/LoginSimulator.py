@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
 from urllib import error, parse, request
 from base64 import b64encode, b64decode
 from http import cookiejar
@@ -35,7 +38,7 @@ class LoginSimulator:
         获取cookie=>SessionID
         :return: base64编码的验证码图片
         """
-        return b64encode(self.opener.open(self.CaptchaUrl).read())
+        return bytes.decode(b64encode(self.opener.open(self.CaptchaUrl).read()))
 
     def login(self, rand, name, password):
         postData = {

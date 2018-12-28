@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 from . import api
 import pickle
 import requests
@@ -9,16 +12,36 @@ from app.modules.Catch_Page import Crawler
 from app.modules.Course_info import NianDu
 
 
-@api.route("/ehallLogin")
+@api.route("/ehallLogin", methods=["POST"])
 def ehall_login():
     req_msg = request.json
     number = req_msg.get("number", "")
     password = req_msg.get("password", "")
+    # 尝试登陆信息门户
     check = NianDu.login(number, password)
-    if not check:
-        return jsonify(errror=1)
+    error_type1 = {
+        "error_1": "首页请求失败",
+        "error_2": "用户名/密码错误",
+        "error_3": "模拟登陆异常",
+        "error_4": "教务系统登陆异常",
+    }
+    if check in error_type1:
+        return jsonify(error=error_type1[check])
     session['number'] = number
-    name, password, college = NianDu.number(check)
+    # 尝试获取 姓名 学号 学院
+    number_tuple = NianDu.number(check)
+
+    error_type2 = {
+        "error_5": "请求个人信息出现异常",
+        "error_6": "个人信息处理出现异常"
+    }
+    if number_tuple in error_type2:
+        return jsonify(error=error_type2[number_tuple])
+    else:
+        name, password, college = number_tuple
+    session['password'] = password
+    session['check'] = pickle.dumps(check)
+    # 转换学院名称缩写
     trans = {
         '法学院': '法学院',
         '文学与新闻传播学院': '文传学院',
@@ -43,8 +66,6 @@ def ehall_login():
         '音乐舞蹈学院': '音舞学院',
     }
     college_s = trans[college]
-    session['password'] = password
-    session['check'] = pickle.dumps(check)
     session['college'] = college_s
     o = Crawler()
     pic = o.get_captcha()
@@ -52,31 +73,47 @@ def ehall_login():
     return jsonify(error=0, pic=pic)
 
 
-@api.route("/ecardlogin")
+@api.route("/ecardlogin", methods=["POST"])
 def ecard_login():
-    if session['check'] is None:
-        return jsonify(error='未登陆教务系统')
+    check = session.get('check', '')
+    if check is None or check == '':
+        return jsonify(error='4')
     else:
-        number = session['number']
-        password = session['password']
         req_msg = request.json
         code = req_msg.get('code', '')
         _password = req_msg.get('password', '')
+        number = session['number']
+        password = session['password']
         password = password if _password == '' else _password
         o = Crawler()
         o.cookie = requests.utils.cookiejar_from_dict(session['cookie'])
         login_status = o.login(code, number, password)
-        if login_status == 0:
-            session['auth'] = True
+        user_obj = User.query.filter(User.Sno == session['number']).first()
+        session['has'] = True if user_obj else False
+        session['auth'] = True if login_status == 0 else False
         return jsonify(error=login_status)
 
 
-@api.route("information")
+@api.route("/information", methods=["GET"])
 def get_information():
     if not session['auth']:
         return jsonify(error=1)
+    # 如果已查询过直接返回保存值
+    if session['has']:
+        user_obj = User.query.filter(User.Sno == session['number']).first()
+        response = jsonify(user_obj.data) if user_obj else jsonify(error=2)
+        return response
+    # 还原教务系统cookie
     check = pickle.loads(session['check'])
-    term, courseCount, classCount, classDay, list3 = NianDu.kebiao(check, session['number'])
+    kebiao_tuple = NianDu.kebiao(check, session['number'])
+    error_type = {
+        "error_7": "请求课表页面出现异常",
+        "error_8": "课表信息处理出现异常"
+    }
+    if kebiao_tuple in error_type:
+        return jsonify(error=error_type[kebiao_tuple])
+    else:
+        term, courseCount, classCount, classDay, list3 = kebiao_tuple
     o = Crawler()
     o.cookie = requests.utils.cookiejar_from_dict(session['cookie'])
     if not o.get_account():
@@ -85,22 +122,31 @@ def get_information():
     if college_obj is None:
         return jsonify(error=3)
     ranking = len(college_obj.users.all()) + 1
-    c = Calculator(o.get_bill())
-    info = {"type_count": c.get_type_count(),
-            "times": c.times,
-            "bf_times": c.bf_times,
-            "bus_times": c.bus_times,
-            "sum_price": c.sum_price,
-            "hosp_times": c.hosp_times,
-            "top_price_place": c.top_record[4].rstrip(),
-            "top_price": c.sum_price,
-            "ranking": ranking,
-            "most_class": list3,
-            "courseCount": courseCount,
-            "classCount": classCount,
-            "classDay": classDay,
-            "term": term,
-            }
+    bill = o.get_bill()
+    if not bill:
+        return jsonify(error=4)
+    c = Calculator(bill)
+    most_visit_place, most_visit_times = c.get_most_visit()
+    info = {
+        "ranking": ranking,
+        "type_count": c.get_type_count(),
+        "times": c.times,
+        "bf_times": c.bf_times,
+        "bus_times": c.bus_times,
+        "sum_price": c.sum_price,
+        "hosp_times": c.hosp_times,
+        "top_price_place": c.top_record[4].rstrip(),
+        "most_visit_place": most_visit_place,
+        "most_visit_times": most_visit_times,
+        "top_price": c.sum_price,
+        "overdue_times": c.overdue_times,
+        "overdue_price": c.overdue_price,
+        "courseCount": courseCount,
+        "classCount": classCount,
+        "classDay": classDay,
+        "most_class": list3,
+        "term": term
+    }
     user_obj = User(belong_college=college_obj.id, Sno=session['number'], data=info)
     db.session.add(user_obj)
     db.session.commit()

@@ -27,18 +27,15 @@ POST
 
 ### 返回字段
 
-#### data部分
-
 | 参数  | 字段类型 | 说明               |
-| :---- | :------- | :----------------- |
-| error | string   | 错误信息           |
+| :---- | :------- | :---------------|
+| error | string   | 错误信息          |
 | pic   | string   | Base64编码的验证码 |
-| xueyuan
 
 ### 返回error信息说明
+0：'无错误'
 
-1：'信息门户密码错误'
-2：'0'（无错误）
+其他的错误信息是明文
 
 ------
 
@@ -60,6 +57,10 @@ JSON
 
 POST
 
+### 鉴权
+
+需携带cookie 且正确访问上方接口
+
 ### 请求参数
 
 | 参数     | 必选  | 类型   | 说明             |
@@ -68,8 +69,6 @@ POST
 | password | false | string | 用户输入查询密码 |
 
 ### 返回字段
-
-#### data部分
 
 | 参数  | 字段类型 | 说明     |
 | :---- | :------- | :------- |
@@ -84,6 +83,8 @@ POST
 2：'验证码错误'
 
 3：'账号错误'
+
+4：'未执行前置步骤'
 
 ------
 
@@ -107,7 +108,7 @@ GET
 
 ### 鉴权
 
-需携带cookie
+需携带cookie 且正确访问上方所有接口
 
 ### 返回字段
 
@@ -115,27 +116,36 @@ GET
 
 | 参数    | 字段类型 | 说明                       |
 | :------ | :------- | :------------------------- |
-| item_1  | int      | 多少门课                   |
-| item_2  | int      | 多少节课                   |
-| item_3  | int      | 多少个日夜                 |
-| item_4  | stirng   | 什么课陪你渡过了最长的岁月    |
-| item_5  | int      | 多少次滴声                 |
-| item_6  | string   | 总共花费了                 |
-| item_7  | int      | 打卡多少家                 |
-| item_8  | string   | 在哪家挥金如土              |
-| item_9  | string   | 刷了多少元                 |
-| item_10 | string   | 最常去的哪家               |
-| item_11 | int      | 消费多少次                 |
-| item_12 | int      | 搭乘校车多少次              |
-| item_13 | int      | 挂号多少次                 |
-| item_14 | int      | 逾期罚款总金额              |
-| item_15 | int      | 坚持吃早点多少天            |
-| item_16 | int      | 第几个学期                 |
+| courseCount | int      | 课程门数              |
+| classCount | int      | 课程节数                |
+| classDay | int      | 换算天数                 |
+| most_class | stirng   | 什么课陪你渡过了最长的岁月    |
+| times  | int      | 消费次数                 |
+| sum_price  | string   | 消费总额                 |
+| type_count  | int      | 打卡多少家                 |
+| top_price_place | string   | 最高消费商户       |
+| top_price | string   | 最高消费金额               |
+| most_visit_place | string   | 最常去商户             |
+| most_visit_times | int      | 消费多少次                 |
+| bus_times | int      | 搭乘校车多少次              |
+| hosp_times | int      | 校医院次数                 |
+| overdue_price | int      | 逾期总额              |
+|overdue_times|int|逾期次数|
+| bf_times | int      | 早点天数                   |
+| trem | int      | 第几个学期                 |
+|ranking|int|本学院打卡排名|
 
 ### 返回error信息说明
 
-1：'获取失败'
-2：'0'（无错误）
+0：'无错误'
+
+1：'未执行前置步骤'
+
+2：'获取账号类型失败'
+
+3：'获取学院信息失败'
+
+4：'获取账单信息失败'
 
 
 
