@@ -1,5 +1,4 @@
-from . import db
-from sqlalchemy import event
+from app import db
 
 
 class College(db.Model):
