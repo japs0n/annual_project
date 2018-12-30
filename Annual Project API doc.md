@@ -116,6 +116,7 @@ GET
 
 | 参数    | 字段类型 | 说明                       |
 | :------ | :------- | :------------------------- |
+| name | string| 用户姓名|
 | courseCount | int      | 课程门数              |
 | classCount | int      | 课程节数                |
 | classDay | int      | 换算天数                 |

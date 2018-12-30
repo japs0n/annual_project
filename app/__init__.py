@@ -1,5 +1,6 @@
 from flask import Flask
 from config import config
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import logging
 
@@ -15,6 +16,7 @@ handler.setFormatter(logging_format)
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    CORS(app, supports_credentials=True)
     app.logger.addHandler(handler)
     db.init_app(app)
 

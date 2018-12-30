@@ -40,6 +40,7 @@ def ehall_login():
     else:
         name, password, college = number_tuple
     session['password'] = password
+    session['name'] = name
     session['check'] = pickle.dumps(check)
     # 转换学院名称缩写
     trans = {
@@ -96,7 +97,8 @@ def ecard_login():
 
 @api.route("/information", methods=["GET"])
 def get_information():
-    if not session['auth']:
+    auth = session.get('auth', '')
+    if auth is '' or auth is False:
         return jsonify(error=1)
     # 如果已查询过直接返回保存值
     if session['has']:
@@ -129,6 +131,7 @@ def get_information():
     c = Calculator(bill)
     most_visit_place, most_visit_times = c.get_most_visit()
     info = {
+        "name": session['name'],
         "ranking": ranking,
         "type_count": c.get_type_count(),
         "times": c.times,
