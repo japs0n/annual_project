@@ -15,7 +15,7 @@ class Calculator:
         self.overdue_price = Decimal()
         self.overdue_times = 0
         self.type_list = dict()
-        self.top_price = Decimal(self.top_record[5])
+        self.top_price = Decimal()
         for record in bill:
             if record[4] is None:
                 continue
@@ -24,6 +24,7 @@ class Calculator:
             price = Decimal(record[5])
             if price < self.top_price:
                 self.top_record = record
+                self.top_price = Decimal(self.top_record[5])
             if hour in range(5, 9):
                 self.bf_times += 1
             if price < 0:

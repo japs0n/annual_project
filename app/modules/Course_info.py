@@ -1,17 +1,17 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-
+# -*- coding: utf-8 -*-
 import re
 from time import sleep
 import requests
 from bs4 import BeautifulSoup as bs
 
 
+# noinspection PyBroadException
 class NianDu:
     @staticmethod
     def login(username, password):
         session = requests.Session()
-        start_url = "http://id.scuec.edu.cn/authserver/login?service=http%3A%2F%2Fehall.scuec.edu.cn%2Flogin%3Fservice%3Dhttp%3A%2F%2Fehall.scuec.edu.cn%2Fnew%2Findex.html"
+        start_url = "http://id.scuec.edu.cn/authserver/login?service=http%3A%2F%2Fehall.scuec.edu.cn%2Flogin%3Fservice\
+        %3Dhttp%3A%2F%2Fehall.scuec.edu.cn%2Fnew%2Findex.html"
         headers = dict(
             headers1={
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -23,7 +23,8 @@ class NianDu:
                 'Pragma': 'no-cache',
                 'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
                 'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+                70.0.3538.67 Safari/537.36'
             },
             headers2={
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -38,7 +39,8 @@ class NianDu:
                 'Pragma': 'no-cache',
                 'Referer': start_url,
                 'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+                70.0.3538.67 Safari/537.36'
             }
         )
         try:
@@ -49,7 +51,7 @@ class NianDu:
             execution = soup.find_all(name='input', attrs={'name': 'execution'})[0].get("value")
             _eventId = soup.find_all(name='input', attrs={'name': '_eventId'})[0].get("value")
             rmShown = soup.find_all(name='input', attrs={'name': 'rmShown'})[0].get("value")
-        except Exception as e:
+        except Exception:
             # 请求登录首页失败
             return "error_1"
 
@@ -58,7 +60,8 @@ class NianDu:
                 auth = "JESSESIONID_AUTH=" + str(item.value)
 
         headers['headers2']['Cookie'] = start_repo.headers['Set-Cookie']
-        postUrl = "http://id.scuec.edu.cn/authserver/login;" + auth + "?service=http%3A%2F%2Fehall.scuec.edu.cn%2Flogin%3Fservice%3Dhttp%3A%2F%2Fehall.scuec.edu.cn%2Fnew%2Findex.html"
+        postUrl = "http://id.scuec.edu.cn/authserver/login;" + auth + "?service=http%3A%2F%2Fehall.scuec.edu.cn%2Flogin\
+        %3Fservice%3Dhttp%3A%2F%2Fehall.scuec.edu.cn%2Fnew%2Findex.html"
         postData = {
             'username': username,
             'password': password,
@@ -68,14 +71,12 @@ class NianDu:
             '_eventId': _eventId,
             'rmShown': rmShown
         }
-
         try:
             post_resp = session.post(postUrl, postData, headers['headers2'], allow_redirects=False)
             post_resp.encoding = "utf-8"
-            # print(post_resp.text)
             if "您提供的用户名或者密码有误" in post_resp.text:
                 return "error_2"
-        except Exception as e:
+        except Exception:
             return "error_3"
         sleep(5)
 
@@ -84,7 +85,8 @@ class NianDu:
                 'Host': 'id.scuec.edu.cn',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+                70.0.3538.67 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                 'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
                 'Accept-Encoding': 'gzip, deflate',
@@ -94,14 +96,16 @@ class NianDu:
                 'Host': 'ssfw.scuec.edu.cn',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+                70.0.3538.67 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                 'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
                 'Accept-Encoding': 'gzip, deflate',
                 'Accept-Language': 'zh-CN,zh;q=0.9',
             }
         )
-        jwUrl1 = "http://id.scuec.edu.cn/authserver/login?service=http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check"
+        jwUrl1 = "http://id.scuec.edu.cn/authserver/login?service=http://ssfw.scuec.edu.cn/ssfw/\
+        j_spring_ids_security_check"
         jwxtUrl = "http://ssfw.scuec.edu.cn/ssfw/index.do"
 
         # 获取cookie
@@ -110,11 +114,11 @@ class NianDu:
             jwUrl2 = jw_res1.headers['Location']
             jw_res2 = session.get(jwUrl2, headers=headers['jw2'], allow_redirects=False)
             headers['jw2']['Cookie'] = jw_res2.headers['Set-Cookie']
-            rrrr = session.get("http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check", headers=headers['jw2'],
-                               allow_redirects=False)
+            session.get("http://ssfw.scuec.edu.cn/ssfw/j_spring_ids_security_check", headers=headers['jw2'],
+                        allow_redirects=False)
             headers['jw2']['Cookie'] = jw_res2.headers['Set-Cookie']
-            jwRes = session.get(jwxtUrl, headers=headers['jw2'])
-        except Exception as e1:
+            session.get(jwxtUrl, headers=headers['jw2'])
+        except Exception:
             # 请求教务系统失败
             return "error_3"
         return session
@@ -122,14 +126,13 @@ class NianDu:
     @staticmethod
     def number(session):
         jw3 = {
-            # 'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
             'Cache-Control': 'no-cache',
             'Host': 'ssfw.scuec.edu.cn',
             'Proxy-Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+            70.0.3538.67 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Referer': 'http://ssfw.scuec.edu.cn/ssfw/xkgl/xkjgcx.do',
             'Referer': 'http://ssfw.scuec.edu.cn/ssfw/index.do',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -137,10 +140,8 @@ class NianDu:
         xinxi = "http://ssfw.scuec.edu.cn/ssfw/xjgl/jbxx.do"
         try:
             xRes = session.get(xinxi, headers=jw3)
-            # print(xRes.text)
-        except Exception as e:
+        except Exception:
             return "error_4"
-        # return xRes.text
 
         try:
             soup = bs(xRes.text, 'html.parser')
@@ -166,7 +167,8 @@ class NianDu:
                 'Origin': 'http: // ssfw.scuec.edu.cn',
                 'Pragma': 'no - cache',
                 'Referer': 'http: // ssfw.scuec.edu.cn / ssfw / xjgl / jbxx.do',
-                'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;Win64;x64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 70.0.3538.67Safari / 537.36',
+                'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;Win64;x64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome /\
+                 70.0.3538.67Safari / 537.36',
                 'X - Requested - With': 'XMLHttpRequest'
             }
 
@@ -179,7 +181,7 @@ class NianDu:
             res_xueyuan = session.post(url, headers=headers, data=postData)
             str_res = res_xueyuan.text[1:-1]
             xueyuan = eval(str_res)['label']
-        except Exception as e:
+        except Exception:
             return "error_5"
         return name, password, xueyuan
 
@@ -187,28 +189,23 @@ class NianDu:
     def kebiao(session, username):
         kbUrl = "http://ssfw.scuec.edu.cn/ssfw/pkgl/kcbxx/4/2018-2019-1.do?flag=4&xnxqdm=2018-2019-1"
         jw3 = {
-            # 'Referer': 'http://ehall.scuec.edu.cn/new/index.html',
             'Cache-Control': 'no-cache',
             'Host': 'ssfw.scuec.edu.cn',
             'Proxy-Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/\
+            70.0.3538.67 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Referer': 'http://ssfw.scuec.edu.cn/ssfw/xkgl/xkjgcx.do',
             'Referer': 'http://ssfw.scuec.edu.cn/ssfw/index.do',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
         try:
             kRes = session.get(kbUrl, headers=jw3)
-            # print(kRes.text)
-        except Exception as e:
+        except Exception:
             return "error_6"
-        # return kRes.text
-        # username="201621091077"
         year = username[0:4]
         term = (2018 - int(year)) * 2 + 1
-        # print(term)
         try:
             soup = bs(kRes.text, 'html.parser')
             # 课程，周数，节数
@@ -221,7 +218,9 @@ class NianDu:
             for child in kebiao2:
                 kebiao1.append(child)
             for child in kebiao3:
-                kebiao1.append((child))
+                kebiao1.append(child)
+            if len(kebiao1) == 0:
+                return "课表为空"
             # print(kebiao1)
 
             # 考虑老师在教务系统修改课的情况
@@ -248,11 +247,8 @@ class NianDu:
             dic = {}
             for i in step2:
                 num = re.findall('\d+', str(i))
-
                 course = re.findall(r"</div>\xa0(.*)]", str(i))
-                # print(course)
                 nums = re.findall('\d+', str(course))
-                # print(len(nums))
                 if len(nums) == 1:
                     num1 = int(num[1])
                     num2 = int(num[2])
@@ -272,25 +268,22 @@ class NianDu:
                 if "周(单)" in str(i):
                     weekCount1 = 0
                     for k in range(num1, num2 + 1):
-                        if (k % 2 != 0):
+                        if k % 2 != 0:
                             weekCount1 = weekCount1 + 1
                     classCount = weekCount1 * (num4 - num3 + 1)
                 elif "周(双)" in str(i):
                     weekCount2 = 0
                     for k in range(num1, num2 + 1):
-                        if (k % 2 != 0):
+                        if k % 2 != 0:
                             weekCount2 = weekCount2 + 1
                     classCount = weekCount2 * (num4 - num3 + 1)
                 else:
                     classCount = (num2 - num1 + 1) * (num4 - num3 + 1)
-                # print(classCount)
                 if not str(course) in dic:
                     dic[str(course)] = classCount
                 else:
                     dic[str(course)] = dic[str(course)] + classCount
-            # print(dic)
             courseCount = len(dic)
-            # print(courseCount)
             classCount = 0
             max_value = 0
             for name, value in dic.items():
@@ -298,14 +291,10 @@ class NianDu:
                     max_value = value
                     courseName = name
                 classCount += value
-            # print(classCount)
             classDay = round(classCount * 3 / 4 / 24)
-            # print(classDay)
-            # print(max_value)
             list1 = courseName
             list2 = list1[2:len(list1) - 2]
             list3 = list2 + "]"
-            # print(term,courseCount,classCount,classDay,list3)
-        except Exception as e3:
+        except Exception:
             return "error_6"
         return term, courseCount, classCount, classDay, list3
